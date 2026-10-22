@@ -3,249 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iPhone 15 AU - Full Simulator</title>
-    <link rel="stylesheet" href="https://googleapis.com">
-    <style>
-        /* ==================== DESAIN TAMPILAN (CSS) ==================== */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
-            user-select: none;
-        }
-        body {
-            background-color: #0f1115;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        /* Frame Fisik iPhone 15 */
-        .iphone-15 {
-            width: 375px;
-            height: 812px;
-            border-radius: 45px;
-            border: 12px solid #2d3238;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
-            background: url('https://unsplash.com') center/cover no-repeat;
-        }
-
-        /* Dynamic Island Khas iPhone 15 */
-        .dynamic-island {
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 110px;
-            height: 30px;
-            background-color: black;
-            border-radius: 20px;
-            z-index: 10;
-        }
-
-        /* Struktur Dasar Semua Lapisan Layar */
-        .screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.5s cubic-bezier(0.1, 1, 0.1, 1);
-        }
-
-        /* Status Bar Atas */
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            padding: 18px 30px 10px 30px;
-            font-size: 0.8rem;
-            color: white;
-            z-index: 5;
-        }
-
-        /* Efek Kaca Blur iOS Widget (Glassmorphism) */
-        .ios-widget {
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 22px;
-            padding: 16px;
-            color: white;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* ================= LAYAR 1: LOCK SCREEN ================= */
-        .lock-screen {
-            z-index: 4;
-            background: rgba(0,0,0,0.15);
-            padding: 40px 20px;
-            touch-action: none;
-        }
-        .lock-screen.swiped-up {
-            transform: translateY(-100%);
-            opacity: 0;
-            pointer-events: none;
-        }
-        .ios-time-wrapper {
-            text-align: center;
-            color: white;
-            margin-top: 20px;
-            margin-bottom: 30px;
-        }
-        .ios-time-wrapper p { font-size: 1.1rem; font-weight: 500; }
-        .ios-time-wrapper h1 { font-size: 4.8rem; font-weight: 300; line-height: 1; }
-
-        .music-widget { display: flex; justify-content: space-between; align-items: center; }
-        .music-info { display: flex; gap: 12px; align-items: center; }
-        .music-cover { width: 40px; height: 40px; background: #6a1b9a; border-radius: 8px; display: flex; justify-content: center; align-items: center; }
-        .music-info h4 { font-size: 0.85rem; font-weight: 500; }
-        .music-info p { font-size: 0.75rem; color: rgba(255,255,255,0.6); }
-
-        .notification-card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            width: 100%;
-            padding: 15px;
-            border-radius: 22px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            cursor: pointer;
-        }
-        .noti-header { display: flex; justify-content: space-between; font-size: 0.75rem; color: rgba(255,255,255,0.7); margin-bottom: 5px; font-weight: 600; }
-        .noti-body h4 { font-size: 0.9rem; font-weight: 600; }
-        .noti-body p { font-size: 0.85rem; color: #e2e8f0; margin-top: 2px; }
-
-        .ios-home-indicator-bar { width: 140px; height: 5px; background-color: white; border-radius: 10px; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); }
-        .bottom-hint { margin-top: auto; text-align: center; color: rgba(255,255,255,0.7); font-size: 0.85rem; }
-
-        /* ================= LAYAR 2: PASSCODE SCREEN ================= */
-        .passcode-screen {
-            z-index: 3;
-            background: rgba(10, 10, 12, 0.5);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transform: scale(1.05);
-        }
-        .passcode-screen.show { opacity: 1; pointer-events: auto; transform: scale(1); }
-        .passcode-msg { color: white; font-size: 1rem; margin-bottom: 20px; }
-        .dots-container { display: flex; gap: 20px; margin-bottom: 40px; }
-        .dot { width: 12px; height: 12px; border: 1.5px solid white; border-radius: 50%; }
-        .dot.active { background-color: white; }
-
-        .ios-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 25px; }
-        .num-key { width: 75px; height: 75px; border-radius: 50%; border: none; background: rgba(255, 255, 255, 0.12); color: white; font-size: 1.8rem; cursor: pointer; }
-        .num-key:active { background: rgba(255, 255, 255, 0.3); }
-        .label-key { background: transparent; border: none; color: white; font-size: 0.9rem; cursor: pointer; }
-
-        /* ================= LAYAR 3: HOME SCREEN (LAYAR UTAMA) ================= */
-        .home-screen {
-            z-index: 2;
-            padding: 55px 20px 20px 20px;
-            opacity: 0;
-            transform: scale(0.95);
-            pointer-events: none;
-        }
-        .home-screen.active { opacity: 1; transform: scale(1); pointer-events: auto; }
-
-        /* Struktur Widget Kaca Besar di Layar Utama */
-        .home-widgets-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 15px;
-            margin-bottom: 25px;
-        }
-        .home-widget {
-            height: 140px;
-            margin-bottom: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .widget-clock-body { text-align: center; margin: auto; color: white; }
-        .widget-clock-body h2 { font-size: 2.2rem; font-weight: 400; }
-        .widget-clock-body p { font-size: 0.75rem; color: #cbd5e1; }
-        
-        .note-widget p { font-size: 0.8rem; line-height: 1.4; color: #f1f5f9; margin-top: 5px; }
-
-        /* Grid Utama Ikon Aplikasi */
-        .app-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 22px 14px;
-        }
-        .app-item { display: flex; flex-direction: column; align-items: center; color: white; cursor: pointer; }
-        .app-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 14px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.8rem;
-            margin-bottom: 6px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: transform 0.1s;
-        }
-        .app-item:active .app-icon { transform: scale(0.9); }
-        .app-item span { font-size: 0.72rem; text-align: center; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
-
-        /* Gradasi Khas Aplikasi iPhone */
-        .icon-gallery { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-        .icon-clock { background: linear-gradient(135deg, #243b55, #141e30); }
-        .icon-cam { background: linear-gradient(135deg, #515a6e, #7b8599); }
-        .icon-cal { background: linear-gradient(135deg, #ff5e62, #ff9966); }
-        .icon-note { background: linear-gradient(135deg, #f1c40f, #f39c12); }
-        .icon-msg { background: linear-gradient(135deg, #00c6ff, #0072ff); }
-        .icon-wa { background: linear-gradient(135deg, #11998e, #38ef7d); }
-        .icon-phone { background: linear-gradient(135deg, #56ab2f, #a8ff78); }
-        .icon-music { background: linear-gradient(135deg, #ff007f, #ff758c); }
-
-        /* iOS Bottom Dock (Aplikasi Utama di Bawah) */
-        .ios-dock {
-            margin-top: auto;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-radius: 30px;
-            padding: 14px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border: 1px solid rgba(255,255,255,0.15);
-            margin-bottom: 15px;
-        }
-        .ios-dock .app-item span { display: none; } /* Sembunyikan teks di dalam dock */
-    </style>
+    <title>iPhone 15 AU Simulator - Real-Time</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="iphone-15">
-        <div class="dynamic-island"></div>
-
-        <!-- ================= LAYAR 1: LOCK SCREEN ================= -->
-        <div class="screen lock-screen" id="lockScreen">
-            <div class="status-bar">
-                <span>Telkomsel</span>
-                <div>📶 4G 🔋 85%</div>
+    <!-- Frame Utama iPhone 15 -->
+    <div class="phone-frame">
+        <!-- Dynamic Island -->
+        <div class="dynamic-island" id="dynamic-island"></div>
+        
+        <!-- ================= FASE 1: LOCK SCREEN ================= -->
+        <div class="screen active" id="lock-screen">
+            <div class="lock-header">
+                <div class="lock-date font-ios-date" id="lock-date">Memuat tanggal...</div>
+                <div class="lock-time font-ios-time" id="lock-time">00:00</div>
             </div>
 
-            <div class="ios-time-wrapper">
-                <p id="iosDate">Memuat tanggal...</p>
-                <h1 id="iosClock">00:00</h1>
+            <!-- Area Notifikasi Lock Screen -->
+            <div class="notif-container">
+                <!-- Notif WhatsApp dari Yan -->
+                <div class="notif-box wa-notif">
+                    <div class="app-icon wa-icon">💬</div>
+                    <div class="notif-info">
+                        <div class="notif-top-row">
+                            <span class="sender-name">Yan</span>
+                            <span class="time-stamp">sekarang</span>
+                        </div>
+                        <div class="message-body">aku udah sampe, kamu dimana?</div>
+                    </div>
+                </div>
+
+                <!-- Notif Music Player -->
+                <div class="music-player">
+                    <div class="music-info">
+                        <div class="music-cover">🎵</div>
+                        <div>
+                            <div class="music-title">Favorite Song</div>
+                            <div class="music-artist">Our Playlist</div>
+                        </div>
+                    </div>
+                    <div class="music-controls">
+                        <span>⏮️</span> <span>⏸️</span> <span>⏭️</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- Pemutar Musik -->
+            <!-- Bagian Bawah Lock Screen -->
+            <div class="lock-footer" id="swipe-trigger">
+                <div class="action-text">Klik atau Geser ke atas untuk membuka</div>
+                <div class="home-bar"></div>
+            </div>
+        </div>
+
+        <!-- ================= FASE 2: PASSCODE SCREEN ================= -->
+        <div class="screen" id="passcode-screen">
+            <div class="passcode-header">
+                <p>Masukkan Sandi</p>
+                <div class="dots-container" id="dots-container">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+
+            <!-- Numpad Keyboard -->
+            <div class="numpad">
+                <button class="num-btn" onclick="pressKey('1')">1</button>
+                <button class="num-btn" onclick="pressKey('2')">2</button>
+                <button class="num-btn" onclick="pressKey('3')">3</button>
+                <button class="num-btn" onclick="pressKey('4')">4</button>
+                <button class="num-btn" onclick="pressKey('5')">5</button>
+                <button class="num-btn" onclick="pressKey('6')">6</button>
+                <button class="num-btn" onclick="pressKey('7')">7</button>
+                <button class="num-btn" onclick="pressKey('8')">8</button>
+                <button class="num-btn" onclick="pressKey('9')">9</button>
+                <div></div>
+                <button class="num-btn" onclick="pressKey('0')">0</button>
+                <button class="txt-btn" onclick="clearKey()">Hapus</button>
+            </div>
+        </div>
+
+        <!-- ================= FASE 3: HOME SCREEN ================= -->
+        <div class="screen" id="home-screen">
+            <div class="home-widgets">
+                <!-- Widget Jam Digital & Tanggal Real-Time -->
+                <div class="widget-box widget-clock">
+                    <div class="home-time" id="home-time">00:00</div>
+                    <div class="home-date" id="home-date">Memuat...</div>
+                </div>
+
+                <!-- Widget Notes Belanjaan -->
+                <div class="widget-box widget-notes">
+                    <div class="notes-title">📝 Daftar Belanja</div>
+                    <ul class="notes-list">
+                        <li>mango pudding cake</li>
+                        <li>buket bunga</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Grid Aplikasi iPhone 15 -->
+            <div class="apps-grid">
+                <div class="app-item"><div class="app-shape bg-safari">🌐</div><span>Safari</span></div>
+                <div class="app-item"><div class="app-shape bg-photos">🖼️</div><span>Foto</span></div>
+                <div class="app-item"><div class="app-shape bg-wa">💬</div><span>WhatsApp</span></div>
+                <div class="app-item"><div class="app-shape bg-notes">🗒️</div><span>Catatan</span></div>
+                <div class="app-item"><div class="app-shape bg-music">🎵</div><span>Musik</span></div>
+                <div class="app-item"><div class="app-shape bg-settings">⚙️</div><span>Pengaturan</span></div>
+            </div>
+
+            <!-- Dock Aplikasi Bawah -->
+            <div class="phone-dock">
+                <div class="app-shape bg-phone">📞</div>
+                <div class="app-shape bg-safari">🌐</div>
+                <div class="app-shape bg-messages">💬</div>
+                <div class="app-shape bg-music">🎵</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
